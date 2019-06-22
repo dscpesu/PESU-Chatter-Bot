@@ -12,8 +12,8 @@ def cleanHTML(text):
 names = []
 desgs = []
 email = []
-for number in range(1, 7):
-    site = 'https://faculty.pes.edu/department-architecture'
+for number in range(1, 6):
+    site = 'https://faculty.pes.edu/department-electronics-&-communications' + '?page=' + str(number)
     siteReq = requests.get(site)
     siteHTML = bs(siteReq.content, 'html.parser')
     allTitles = siteHTML.findAll(class_ = 'courses-title')
@@ -31,7 +31,7 @@ for number in range(1, 7):
         allEmails = desc.findAll(class_ = 'email')  
         for nemail in allEmails:
             ourEmail = ' '.join(nemail.text.split())
-            email.append(ourEmail) 
-with open('arch.csv', 'w') as f:
+            email.append(ourEmail)
+with open('ecedata.csv', 'w') as f:
     writer = csv.writer(f)
     writer.writerows(zip(names, desgs, email))
