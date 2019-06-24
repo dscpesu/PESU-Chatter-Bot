@@ -9,9 +9,10 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import warnings
+from cleanup import clean
 warnings.filterwarnings('ignore')
 
-import nltk
+import nltk 
 from nltk.stem import WordNetLemmatizer
 nltk.download('popular', quiet=True) # for downloading packages
 
@@ -20,13 +21,15 @@ nltk.download('wordnet') # first-time use only
 
 
 #Reading in the corpus
-with open('handbook.txt','r', encoding='utf8', errors ='ignore') as fin:
-    raw = fin.read().lower()
+# with open('handbook.txt','r', encoding='utf8', errors ='ignore') as fin:
+#     raw = fin.read().lower()
 
+raw=clean('handbook.txt')
+# print(raw)
 #TOkenisation
 sent_tokens = nltk.sent_tokenize(raw)# converts to list of sentences 
 word_tokens = nltk.word_tokenize(raw)# converts to list of words
-print(sent_tokens)
+# print(sent_tokens)
 # Preprocessing
 lemmer = WordNetLemmatizer()
 def LemTokens(tokens):
@@ -58,7 +61,6 @@ def response(user_response):
     # print(tfidf," shape---->", np.shape(tfidf))
     vals = cosine_similarity(tfidf[-1], tfidf)
     # print(vals," shape---->", np.shape(vals))
-    # print(sent_tokens[1])
     idx=vals.argsort()[0][-2]
     flat = vals.flatten()
     flat.sort()
