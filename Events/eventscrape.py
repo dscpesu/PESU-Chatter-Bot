@@ -43,6 +43,9 @@ for t in allTimeTitles:
 for (m,d,t) in iter.zip_longest(months,days,times):
     allDates.append(m[0]+' '+d[0]+' '+t[0])
 
+n=['Name']
+t=['Time']
 with open('events.csv', 'w') as f:
     writer = csv.writer(f)
+    writer.writerows(zip(n,t))    
     writer.writerows(zip(allEvents,allDates))
