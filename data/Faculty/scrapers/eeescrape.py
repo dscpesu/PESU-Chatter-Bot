@@ -32,6 +32,10 @@ for number in range(1, 3):
         for nemail in allEmails:
             ourEmail = ' '.join(nemail.text.split())
             email.append(ourEmail)
-with open('eeedata.csv', 'w') as f:
+n=['Name']
+d=['Designation']
+e=['E-mail']
+with open('E:\collage\DSC_Project\PESU-Chatter-Bot\data\Faculty\CSVs\eeedata.csv', 'w+') as f:
     writer = csv.writer(f)
+    writer.writerows(zip(n,d,e))
     writer.writerows(zip(names, desgs, email))
