@@ -2,15 +2,16 @@ import pandas as pd
 import spacy as sp
 import random
 import nltk
+from nltk.stem import WordNetLemmatizer
 import datetime
 import re
 import os
 from spacy.matcher import Matcher
-import string
 
 # nltk.download('popular', quiet=True)
 # nltk.download('punkt')
 # nltk.download('wordnet')
+lemmer = WordNetLemmatizer()
 
 nlp = sp.load('en_core_web_sm')
 matcher = Matcher(nlp.vocab)
@@ -74,7 +75,7 @@ resIdx = res.index('Yes')
 
 hi = ['Hi there!', 'Hey!', 'Hello! How can i help you?',
       'Sup', 'What can I do for you?']
-bye = ['Bye!', 'See you!', 'Goodbye!', 'Have a nice day!']
+by = ['Bye!', 'See you!', 'Goodbye!', 'Have a nice day!']
 
 
 def hello():
@@ -82,112 +83,110 @@ def hello():
 
 
 def bye():
-    print(random.choice(bye))
+    print(random.choice(by))
 
 
 def sorry():
     print("I'm sorry. I didn't understand you")
 
 
-def facultyNames(words):
-    if 'architecture' in words or 'arch' in words or 'b.arch' in words:
-        for x in archNames:
-            print(x)
-    elif 'bt' in words or 'biotechnology' in words:
-        for x in btNames:
-            print(x)
-    elif 'cs' in words or 'computer' in words or 'cse' in words:
-        for x in csNames:
-            print(x)
-    elif 'bt' in words or 'biotechnology' in words or 'biotech' in words:
-        for x in btNames:
-            print(x)
-    elif 'ec' in words or 'electronics' in words or 'ece' in words:
-        for x in ecNames:
-            print(x)
-    elif 'ee' in words or 'electrical' in words or 'eee' in words:
-        for x in eeNames:
-            print(x)
-    elif 'mech' in words or 'mechanical' in words:
-        for x in mechNames:
-            print(x)
-    elif 's&h' in words or ('science' in words and 'humanities in words') or 'sh' in words:
-        for x in shNames:
-            print(x)
-    elif 'cv' in words or 'civil' in words:
-        for x in cvNames:
-            print(x)
-    else:
-        print("I couldn't understand which department you're talking about.")
-
 def nameDetect(text):
-    s = text.translate(str.maketrans('', '', string.punctuation))
-    s = s.split()
-    start = False
-    name = ""
+    facList = []
     tempList = []
-    facList=[]
+    nameList = []
+    finalList = []
+    name = ''
+    text = text.replace("'", "")
 
-    for x in s:
-        if x == 'Prof' or x == 'Dr' or x == 'Mr' or x == 'Mrs' or x == 'Ms' or x=='Ar':
-            name = name+x+'.'
-            start = True
+    # formatting for extracting names
+    if re.findall("Dr\.\s|Dr\.", text):
+        text = re.sub("Dr\.\s|Dr\.", "Dr ", text)
+
+    elif re.findall("Mr\.\s|Mr\.", text):
+        text = re.sub("Mr\.\s|Mr\.", "Mr ", text)
+
+    elif re.findall("Mrs\.\s|Mrs\.", text):
+        text = re.sub("Mrs\.\s|Mrs\.", "Mrs ", text)
+
+    elif re.findall("Ms\.\s|Ms\.", text):
+        text = re.sub("Ms\.\s|Ms\.", "Ms ", text)
+
+    elif re.findall("Prof\.\s|Prof\.", text):
+        text = re.sub("Prof\.\s|Prof\.", "Prof ", text)
+
+    elif re.findall("Ar\.\s|Ar\.", text):
+        text = re.sub("Ar\.\s|Ar\.", "Ar ", text)
+
+    # extracting the names
+    for x in text.split():
+        if re.findall("^[A-Z]", x):
+            name = name+x+' '
             continue
+        nameList.append(name)
+        name = ''
 
-        if start == True:
-            if re.search("^[A-Z]", x):
-                name = name+' '+x
-            else:
-                start = False
-                tempList.append(name)
-                name = ''
+    # formatting the names for database
+    for x in nameList:
 
-    for x in tempList:
-        if re.findall("s$",x):
-            facList.append(re.sub("s$",'',x))
+        if re.findall("Ar\s|Ar\s\s", x):
+            tempList.append(re.sub("Ar\s|Ar\s\s", "Ar. ", x))
+        elif re.findall("Dr\s|Dr\s\s", x):
+            tempList.append(re.sub("Dr\s|Dr\s\s", "Dr. ", x))
+        elif re.findall("Mr\s|Mr\s\s", x):
+            tempList.append(re.sub("Mr\s|Mr\s\s", "Mr. ", x))
+        elif re.findall("Ms\s|Ms\s\s", x):
+            tempList.append(re.sub("Ms\s|Ms\s\s", "Ms. ", x))
+        elif re.findall("Mrs\s|Mrs\s\s", x):
+            tempList.append(re.sub("Mrs\s|Mrs\s\s", "Mrs. ", x))
+        elif re.findall("Prof\s|Prof\s\s", x):
+            tempList.append(re.sub("Prof\s|Prof\s\s", "Prof. ", x))
+
+    for x in tempList:  # removes whitespaces at the end
+        if re.findall("\s$", x):
+            facList.append(re.sub("\s$", "", x))
+
+    for x in facList:  # removes any s at the end if user gave a possessive noun
+        if re.findall("s$", x):
+            finalList.append(re.sub("s$", '', x))
             continue
-        facList.append(x)
-        
-    return facList
+        finalList.append(x)
+
+    return finalList
 
 
 def faculty(words, text):
-    
-    facList=nameDetect(text)
-    if not facList:
-        # spaces must be present after Prof. or Dr. etc in order to detect thr name
-        print(
-            "Please make sure the name you typed has a space after their respective title.")
-        return
+    facList = []
 
+    facList = nameDetect(text)
     for x in facList:
         if 'mail' in words or 'e-mail' in words or 'email' in words:
             if x in archNames:
                 emIdx = archNames.index(x)
-                print(x, ': ', archEmail[emIdx])
+                print(x, ': Email- ', archEmail[emIdx])
             elif x in btNames:
                 emIdx = btNames.index(x)
-                print(x, ': ', btEmail[emIdx])
+                print(x, ': Email- ', btEmail[emIdx])
             elif x in cvNames:
                 emIdx = cvNames.index(x)
-                print(x, ': ', cvEmail[emIdx])
+                print(x, ': Email- ', cvEmail[emIdx])
             elif x in csNames:
                 emIdx = csNames.index(x)
-                print(x, ': ', csEmail[emIdx])
+                print(x, ': Email- ', csEmail[emIdx])
             elif x in ecNames:
                 emIdx = ecNames.index(x)
-                print(x, ': ', ecEmail[emIdx])
+                print(x, ': Email- ', ecEmail[emIdx])
             elif x in eeNames:
                 emIdx = eeNames.index(x)
-                print(x, ': ', eeEmail[emIdx])
+                print(x, ': Email- ', eeEmail[emIdx])
             elif x in mechNames:
                 emIdx = mechNames.index(x)
-                print(x, ': ', mechEmail[emIdx])
+                print(x, ': Email- ', mechEmail[emIdx])
             elif x in shNames:
                 emIdx = shNames.index(x)
-                print(x, ': ', shEmail[emIdx])
+                print(x, ': Email- ', shEmail[emIdx])
             else:
                 print(x, " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling. Please make sure the name is case-sensitive.")
+
         if 'designation'in words or 'job' in words or 'do' in words:
             if x in archNames:
                 emIdx = archNames.index(x)
@@ -215,12 +214,12 @@ def faculty(words, text):
                 print(x, ': ', shDesg[emIdx])
             else:
                 if 'mail' not in words and 'e-mail' not in words and 'email' not in words:
-                    print(x, " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department in case you aren't sure of the spelling.")
+                    print(x, " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling.")
 
 
-print('Type Bye to exit\n')
+print("Type Bye to exit\n")
 hello()
-userResponse = input()
+userResponse = input('')
 text = userResponse
 userResponse = nlp(userResponse.lower())
 words = [x.lemma_ for x in userResponse]
@@ -262,13 +261,14 @@ while('bye' not in words):
             else:
                 print('The results will be released on: ', calDate[resIdx])
         # questions related to faculty
-        elif re.search("Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", text) and ('designation'in words or 'job' in words or 'do' in words or 'mail' in words or 'e-mail' in words or 'email' in words):
+        elif re.search("Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", text):
             faculty(words, text)
-        elif 'be' in words and ('faculty' in words or 'department' in words or 'dept' in words):
-            facultyNames(words)
+        
+        else:
+            sorry()
 
     else:
-        sorry()
+        print("I'm sorry, I didn't understand that.")
     userResponse = input('\n')
     text = userResponse
     userResponse = nlp(userResponse.lower())
