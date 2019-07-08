@@ -19,7 +19,7 @@ matcher = Matcher(nlp.vocab)
 pwd = os.getcwd()
 fileDir = pwd+'\\Data\\Faculty\\CSVs'
 
-e = pd.read_csv('Events\events.csv')
+e = pd.read_csv('data\Events\events.csv')
 eNames = list(e['Name'])
 eTimes = list(e['Time'])
 
@@ -63,7 +63,7 @@ shNames = list(sh['Name'])
 shDesg = list(sh['Designation'])
 shEmail = list(sh['E-mail'])
 
-cal = pd.read_csv('Calendar\calendar.csv')
+cal = pd.read_csv('data\Calendar\calendar.csv')
 calDate = list(cal['Date'])
 hol = list(cal['Holiday'])
 res = list(cal['Result'])
