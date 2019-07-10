@@ -7,6 +7,10 @@ import datetime
 import re
 import os
 from spacy.matcher import Matcher
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+app.debug = True
 
 # nltk.download('popular', quiet=True)
 # nltk.download('punkt')
@@ -79,15 +83,15 @@ by = ['Bye!', 'See you!', 'Goodbye!', 'Have a nice day!']
 
 
 def hello():
-    print(random.choice(hi))
+    return random.choice(hi)
 
 
 def bye():
-    print(random.choice(by))
+    return random.choice(by)
 
 
 def sorry():
-    print("I'm sorry. I didn't understand you")
+    return "I'm sorry. I didn't understand you"
 
 
 def nameDetect(text):
@@ -154,125 +158,165 @@ def nameDetect(text):
     return finalList
 
 
-def faculty(words, text):
+def faculty(words, text, userResponse):
     facList = []
-
     facList = nameDetect(text)
+
     for x in facList:
+        if ('mail' in words or 'e-mail' in words or 'email' in words) and ('designation'in words or 'job' in words or 'do' in words):
+            if x in archNames:
+                emIdx = archNames.index(x)
+                return render_template('facultyEmail.html', x=x, email=archEmail[emIdx], desg=archDesg[emIdx], userResponse=userResponse)
+            elif x in btNames:
+                emIdx = btNames.index(x)
+                return render_template('facultyEmail.html', x=x, email=btEmail[emIdx], desg=btDesg[emIdx], userResponse=userResponse)
+            elif x in cvNames:
+                emIdx = cvNames.index(x)
+                return render_template('facDesg.html', x=x, email=cvEmail[emIdx], desg=cvDesg[emIdx], userResponse=userResponse)
+            elif x in csNames:
+                emIdx = csNames.index(x)
+                return render_template('facDesg.html', x=x, email=csEmail[emIdx], desg=csDesg[emIdx], userResponse=userResponse)
+            elif x in ecNames:
+                emIdx = ecNames.index(x)
+                return render_template('facDesg.html', x=x, email=ecEmail[emIdx], desg=ecDesg[emIdx], userResponse=userResponse)
+            elif x in eeNames:
+                emIdx = eeNames.index(x)
+                return render_template('facDesg.html', x=x, email=eeEmail[emIdx], desg=eeDesg[emIdx], userResponse=userResponse)
+            elif x in mechNames:
+                emIdx = mechNames.index(x)
+                return render_template('facDesg.html', x=x, email=mechEmail[emIdx], desg=mechDesg[emIdx], userResponse=userResponse)
+            elif x in shNames:
+                emIdx = shNames.index(x)
+                return render_template('facDesg.html', x=x, email=shEmail[emIdx], desg=shDesg[emIdx], userResponse=userResponse)
+            else:
+                output = " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling. Please make sure the name is case-sensitive."
+                return render_template('facultyError.html', x=x, output=output, userResponse=userResponse)
+
         if 'mail' in words or 'e-mail' in words or 'email' in words:
             if x in archNames:
                 emIdx = archNames.index(x)
-                print(x, ': Email- ', archEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=archEmail[emIdx], userResponse=userResponse)
             elif x in btNames:
                 emIdx = btNames.index(x)
-                print(x, ': Email- ', btEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=btEmail[emIdx], userResponse=userResponse)
             elif x in cvNames:
                 emIdx = cvNames.index(x)
-                print(x, ': Email- ', cvEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=cvEmail[emIdx], userResponse=userResponse)
             elif x in csNames:
                 emIdx = csNames.index(x)
-                print(x, ': Email- ', csEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=csEmail[emIdx], userResponse=userResponse)
             elif x in ecNames:
                 emIdx = ecNames.index(x)
-                print(x, ': Email- ', ecEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=ecEmail[emIdx], userResponse=userResponse)
             elif x in eeNames:
                 emIdx = eeNames.index(x)
-                print(x, ': Email- ', eeEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=eeEmail[emIdx], userResponse=userResponse)
             elif x in mechNames:
                 emIdx = mechNames.index(x)
-                print(x, ': Email- ', mechEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=mechEmail[emIdx], userResponse=userResponse)
             elif x in shNames:
                 emIdx = shNames.index(x)
-                print(x, ': Email- ', shEmail[emIdx])
+                return render_template('facultyEmail.html', x=x, email=shEmail[emIdx], userResponse=userResponse)
             else:
-                print(x, " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling. Please make sure the name is case-sensitive.")
+                output = " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling. Please make sure the name is case-sensitive."
+                return render_template('facultyError.html', x=x, output=output, userResponse=userResponse)
 
         if 'designation'in words or 'job' in words or 'do' in words:
             if x in archNames:
                 emIdx = archNames.index(x)
-                print(x, ': ', archDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=archDesg[emIdx], userResponse=userResponse)
             elif x in btNames:
                 emIdx = btNames.index(x)
-                print(x, ': ', btDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=btDesg[emIdx], userResponse=userResponse)
             elif x in cvNames:
                 emIdx = cvNames.index(x)
-                print(x, ': ', cvDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=cvDesg[emIdx], userResponse=userResponse)
             elif x in csNames:
                 emIdx = csNames.index(x)
-                print(x, ': ', csDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=csDesg[emIdx], userResponse=userResponse)
             elif x in ecNames:
                 emIdx = ecNames.index(x)
-                print(x, ': ', ecDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=ecDesg[emIdx], userResponse=userResponse)
             elif x in eeNames:
                 emIdx = eeNames.index(x)
-                print(x, ': ', eeDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=eeDesg[emIdx], userResponse=userResponse)
             elif x in mechNames:
                 emIdx = mechNames.index(x)
-                print(x, ': ', mechDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=mechDesg[emIdx], userResponse=userResponse)
             elif x in shNames:
                 emIdx = shNames.index(x)
-                print(x, ': ', shDesg[emIdx])
+                return render_template('facultyDesg.html', x=x, desg=shDesg[emIdx], userResponse=userResponse)
             else:
                 if 'mail' not in words and 'e-mail' not in words and 'email' not in words:
-                    print(x, " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling.")
+                    output = " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling. Please make sure the name is case-sensitive."
+                    return render_template('facultyError.html', x=x, output=output, userResponse=userResponse)
+
+userResponse = ''
+text = ''
+userResponse = 'Your response here.'
+output = 'Chatbot response.'
+words = ''
 
 
-print("Type Bye to exit\n")
-hello()
-userResponse = input('')
-text = userResponse
-userResponse = nlp(userResponse.lower())
-words = [x.lemma_ for x in userResponse]
+def start():
+    return render_template('index.html', userResponse=userResponse, output=output)
 
-while('bye' not in words):
+
+def main1():
+    userResponse = request.form['userResponse']
+    text = userResponse
+    user = nlp(userResponse.lower())
+    words = [x.lemma_ for x in user]
+
     if 'sup' in words or 'hello' in words or 'hey' in words or 'hi' in words:
-        hello()
+        output = hello()
+        return render_template('index.html', output=output, userResponse=userResponse)
+
+    elif 'bye' in words:
+        output = bye()
+        return render_template('index.html', output=output, userResponse=userResponse)
 
     elif 'be' in words or 'what' in words or 'which' in words:
         # questions related to events occuring in college
         if ('event' in words or 'activity' in words or 'occur' in words) and 'be' in words:
             if eNames:
-                print("The following events are occuring: ")
-                for i in range(len(eNames)):
-                    print(eNames[i], 'occuring on', eTimes[i])
+                output = "The following events are occuring: "
+                return render_template('events.html', output=output, eNames=eNames, eTimes=eTimes, userResponse=userResponse)
             else:
-                print('No events are going on currently.')
+                output = 'No events are going on currently.'
+                return render_template('index.html', userResponse=userResponse, output=output)
+
         elif 'holiday' in words:  # questions related to holidays
             if 'tomorrow' in words:
                 tomDateIndex = calDate.index(
                     str(datetime.date.today()+datetime.timedelta(days=1)))
                 if hol[tomDateIndex] == 'Yes' or (datetime.date.today()+datetime.timedelta(days=1)).strftime("%A") == 'Sunday':
-                    print('Yes, tomorrow is a holiday!')
+                    output = 'Yes, tomorrow is a holiday!'
+                    return render_template('index.html', userResponse=userResponse, output=output)
                 else:
-                    print('Sorry, tomorrow is not a holiday')
+                    output = 'Sorry, tomorrow is not a holiday'
+                    return render_template('index.html', userResponse=userResponse, output=output)
             else:
-                print('The following dates are upcoming holidays:')
-                for i in holIdx:
-                    print(calDate[i])
+                output = 'The following dates are upcoming holidays:'
+                return render_template('holiday.html', calDate=calDate, holIdx=holIdx, output=output, userResponse=userResponse)
+
         elif 'result' in words:  # questions related to results release
             if 'tomorrow' in words:
                 tomDateIndex = calDate.index(
                     str(datetime.date.today()+datetime.timedelta(days=1)))
                 if res[tomDateIndex] == 'Yes':
-                    print('Yes, tomorrow the results will be released!')
+                    output = 'Yes, tomorrow the results will be released!'
+                    return render_template('index.html', userResponse=userResponse, output=output)
                 else:
-                    print(
-                        'The results will not be released tomorrow. They will be released on: ', calDate[resIdx])
+                    output = 'The results will not be released tomorrow. They will be released on '
+                    return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
             else:
-                print('The results will be released on: ', calDate[resIdx])
+                output = 'The results will be released on '
+                return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
         # questions related to faculty
         elif re.search("Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", text):
-            faculty(words, text)
-        
+            return faculty(words, text, userResponse)
+
         else:
-            sorry()
-
-    else:
-        print("I'm sorry, I didn't understand that.")
-    userResponse = input('\n')
-    text = userResponse
-    userResponse = nlp(userResponse.lower())
-    words = [x.lemma_ for x in userResponse]
-    # print(words)
-
-bye()
+            output = "I'm sorry, I didn't understand that."
+            return render_template('index.html', userResponse=userResponse, output=output)

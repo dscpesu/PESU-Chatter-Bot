@@ -1,0 +1,8 @@
+{% extends 'index.html' %} {% block body %}
+
+<div class="alert alert-secondary" role="alert">
+    {{ output }}
+    <br> {% for i in holIdx %} {{ calDate[i] }} <br> {% endfor %}
+</div>
+
+{% endblock %}
