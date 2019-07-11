@@ -23,10 +23,12 @@ matcher = Matcher(nlp.vocab)
 pwd = os.getcwd()
 fileDir = pwd+'\\Data\\Faculty\\CSVs'
 
+# reads the events data
 e = pd.read_csv('data\Events\events.csv')
 eNames = list(e['Name'])
 eTimes = list(e['Time'])
 
+# reads the faculty data
 arch = pd.read_csv(fileDir+'\Archdata.csv')
 archNames = list(arch['Name'])
 archDesg = list(arch['Designation'])
@@ -67,11 +69,12 @@ shNames = list(sh['Name'])
 shDesg = list(sh['Designation'])
 shEmail = list(sh['E-mail'])
 
+# reads calendar data
 cal = pd.read_csv('data\Calendar\calendar.csv')
 calDate = list(cal['Date'])
 hol = list(cal['Holiday'])
 res = list(cal['Result'])
-holIdx = []
+holIdx = [] # list conataining indexes of when it is a holiday
 for i in range(len(hol)):
     if hol[i] == 'Yes':
         holIdx.append(i)
@@ -250,6 +253,7 @@ def faculty(words, text, userResponse):
                 if 'mail' not in words and 'e-mail' not in words and 'email' not in words:
                     output = " does not seem to be a part of any department. You can ask for a list of the faculty under a certain department incase you aren't sure of the spelling. Please make sure the name is case-sensitive."
                     return render_template('facultyError.html', x=x, output=output, userResponse=userResponse)
+
 
 userResponse = ''
 text = ''
