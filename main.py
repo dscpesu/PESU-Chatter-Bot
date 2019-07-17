@@ -8,6 +8,7 @@ import re
 import os
 from spacy.matcher import Matcher
 from flask import Flask, render_template, request
+from nameExtract import extract_names
 
 app = Flask(__name__)
 app.debug = True
@@ -17,7 +18,7 @@ app.debug = True
 # nltk.download('wordnet')
 lemmer = WordNetLemmatizer()
 
-nlp = sp.load('en_core_web_sm')
+nlp = sp.load('en_core_web_md')
 matcher = Matcher(nlp.vocab)
 
 pwd = os.getcwd()
@@ -74,7 +75,7 @@ cal = pd.read_csv('data\Calendar\calendar.csv')
 calDate = list(cal['Date'])
 hol = list(cal['Holiday'])
 res = list(cal['Result'])
-holIdx = [] # list conataining indexes of when it is a holiday
+holIdx = []  # list conataining indexes of when it is a holiday
 for i in range(len(hol)):
     if hol[i] == 'Yes':
         holIdx.append(i)
@@ -95,7 +96,6 @@ def bye():
 
 def sorry():
     return "I'm sorry. I didn't understand you"
-
 
 def nameDetect(text):
     facList = []
@@ -266,13 +266,22 @@ def start():
     return render_template('index.html', userResponse=userResponse, output=output)
 
 
+hiComp = [nlp('hi'), nlp('sup')]
+eventComp = [nlp("what events are occuring in college?"),
+             nlp("let me know what events are going on in college")]
+holidayComp = [nlp("what days are holidays?"), nlp("is tomorrow a holiday?")]
+resultComp = [nlp("what days are results coming out?"),
+              nlp("is tomorrow the results?")]
+profComp = [nlp('what is email?'), nlp('what is job?')]
+
+
 def main1():
     userResponse = request.form['userResponse']
     text = userResponse
     user = nlp(userResponse.lower())
     words = [x.lemma_ for x in user]
 
-    if 'sup' in words or 'hello' in words or 'hey' in words or 'hi' in words:
+    if user.similarity(hiComp[0]) > 0.7 or user.similarity(hiComp[1]) > 0.7:
         output = hello()
         return render_template('index.html', output=output, userResponse=userResponse)
 
@@ -282,7 +291,7 @@ def main1():
 
     elif 'be' in words or 'what' in words or 'which' in words:
         # questions related to events occuring in college
-        if ('event' in words or 'activity' in words or 'occur' in words) and 'be' in words:
+        if (user.similarity(eventComp[0]) > 0.85 or user.similarity(eventComp[1]) > 0.85) and 'event' in words:
             if eNames:
                 output = "The following events are occuring: "
                 return render_template('events.html', output=output, eNames=eNames, eTimes=eTimes, userResponse=userResponse)
@@ -290,37 +299,43 @@ def main1():
                 output = 'No events are going on currently.'
                 return render_template('index.html', userResponse=userResponse, output=output)
 
-        elif 'holiday' in words:  # questions related to holidays
-            if 'tomorrow' in words:
-                tomDateIndex = calDate.index(
-                    str(datetime.date.today()+datetime.timedelta(days=1)))
-                if hol[tomDateIndex] == 'Yes' or (datetime.date.today()+datetime.timedelta(days=1)).strftime("%A") == 'Sunday':
-                    output = 'Yes, tomorrow is a holiday!'
-                    return render_template('index.html', userResponse=userResponse, output=output)
-                else:
-                    output = 'Sorry, tomorrow is not a holiday'
-                    return render_template('index.html', userResponse=userResponse, output=output)
+        # questions related to holidays
+        elif user.similarity(holidayComp[1]) > 0.85 and 'tomorrow' in words and 'holiday' in words:
+            tomDateIndex = calDate.index(
+                str(datetime.date.today()+datetime.timedelta(days=1)))
+            if hol[tomDateIndex] == 'Yes' or (datetime.date.today()+datetime.timedelta(days=1)).strftime("%A") == 'Sunday':
+                output = 'Yes, tomorrow is a holiday!'
+                return render_template('index.html', userResponse=userResponse, output=output)
             else:
-                output = 'The following dates are upcoming holidays:'
-                return render_template('holiday.html', calDate=calDate, holIdx=holIdx, output=output, userResponse=userResponse)
+                output = 'Sorry, tomorrow is not a holiday'
+                return render_template('index.html', userResponse=userResponse, output=output)
+        elif user.similarity(holidayComp[0]) > 0.85 and 'holiday' in words:
+            output = 'The following dates are upcoming holidays:'
+            return render_template('holiday.html', calDate=calDate, holIdx=holIdx, output=output, userResponse=userResponse)
 
-        elif 'result' in words:  # questions related to results release
-            if 'tomorrow' in words:
-                tomDateIndex = calDate.index(
-                    str(datetime.date.today()+datetime.timedelta(days=1)))
-                if res[tomDateIndex] == 'Yes':
-                    output = 'Yes, tomorrow the results will be released!'
-                    return render_template('index.html', userResponse=userResponse, output=output)
-                else:
-                    output = 'The results will not be released tomorrow. They will be released on '
-                    return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
+        # questions related to results release
+        elif user.similarity(resultComp[1]) > 0.85 and 'tomorrow' in words and 'result' in words:
+            tomDateIndex = calDate.index(
+                str(datetime.date.today()+datetime.timedelta(days=1)))
+            if res[tomDateIndex] == 'Yes':
+                output = 'Yes, tomorrow the results will be released!'
+                return render_template('index.html', userResponse=userResponse, output=output)
             else:
-                output = 'The results will be released on '
+                output = 'The results will not be released tomorrow. They will be released on '
                 return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
-        # questions related to faculty
-        elif re.search("Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", text):
-            return faculty(words, text, userResponse)
+        elif user.similarity(resultComp[0]) > 0.85 and 'result' in words:
+            output = 'The results will be released on '
+            return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
 
+        # questions related to faculty
+        elif re.search("Ar\.\s[a-zA-Z]+|Ar\.[a-zA-Z]+|Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", text) or extract_names(text):
+            temp = re.sub(
+                "Ar\.\s[a-zA-Z]+|Ar\.[a-zA-Z]+|Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", " ", text)
+            if(nlp(temp).similarity(profComp[0]) > 0.7 or nlp(temp).similarity(profComp[1]) > 0.7):
+                return faculty(words, text, userResponse)
+            else:
+                output = "I'm sorry, I didn't understand that."
+                return render_template('index.html', userResponse=userResponse, output=output)
         else:
             output = "I'm sorry, I didn't understand that."
             return render_template('index.html', userResponse=userResponse, output=output)
