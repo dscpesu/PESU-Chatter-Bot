@@ -6,31 +6,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Bot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" /> -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <link rel="shortcut icon" href="" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='js/main.css') }}" />
+    <link rel="shortcut icon" href="https://scontent-yyz1-1.cdninstagram.com/vp/fd4f583b7c92f51f1b34e4a60258ab40/5DB11D2F/t51.2885-15/e35/59481565_326914844652900_9018526431255306007_n.jpg?_nc_ht=scontent-yyz1-1.cdninstagram.com" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
+
 </head>
 
-<body bgcolor=eggshell>
+<body class="bgcolors">
 
-    <div class="container p-3">
-        <div class="alert alert-primary" role="alert">
-            {{userResponse}}
+    <a href="/"><button type="button" class="btn btn-primary" style="position: fixed; top:3%;right:5%">Reset</button></a>
+    <br><br><br>
+
+    <div class="container p-3" id="temp">
+        <div class="alert alert-secondary text-left w40" role="alert" style="position: absolute;left:5%">
+            <div class="left">{{output}}</div>
         </div>
-
-        {% block body %}
-
-        <div class="alert alert-secondary" role="alert">
-            {{output}}
+    </div>
+    <div class="block">
+        <div class="container p-3 querybar">
+            <form class="form-row">
+                <div class='col-11'>
+                    <input type="text" class="form-control" id="userResponse" name="userResponse" placeholder="Enter query here.">
+                </div> &nbsp;
+                <i class="fas fa-paper-plane plane" id="submit">
+                    <input type="submit" class="btn btn-primary" id="submit" style="display: none">
+                </i>
+            </form>
         </div>
-
-        {% endblock %}
-
-        <form class="form-group" action="/chat" method="POST">
-            <input type="text" class="form-control" name="userResponse" placeholder="Enter query here.">
-            <input type="submit" class="btn btn-primary" style="display: none">
-        </form>
-        <a href="/"><button type="button" class="btn btn-primary">Reset</button></a>
     </div>
 
 </body>

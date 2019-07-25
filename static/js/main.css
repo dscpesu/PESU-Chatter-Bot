@@ -1,0 +1,54 @@
+@import url("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css");
+.bgcolors {
+    background-color: rgb(24, 24, 26);
+}
+
+.querybar {
+    position: fixed;
+    bottom: 0%;
+    left: 12.5%;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.w40r {
+    width: 40%;
+    position: absolute;
+    right: 5%;
+}
+
+.w40l {
+    width: 40%;
+    position: absolute;
+    left: 5%;
+}
+
+.w40 {
+    width: 40%;
+}
+
+.block {
+    background-color: rgba(24, 24, 26, 0.95);
+    position: fixed;
+    bottom: 0%;
+    height: 12%;
+    width: 100%;
+}
+
+.cover {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.plane {
+    font-size: 30px;
+    color: papayawhip;
+    cursor: pointer;
+}

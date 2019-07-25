@@ -2,22 +2,16 @@ import pandas as pd
 import spacy as sp
 import random
 import nltk
-from nltk.stem import WordNetLemmatizer
 import datetime
 import re
 import os
 from spacy.matcher import Matcher
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from fuzzywuzzy import process, fuzz
 from nameExtract import extract_names
 
 app = Flask(__name__)
 app.debug = True
-
-# nltk.download('popular', quiet=True)
-# nltk.download('punkt')
-# nltk.download('wordnet')
-lemmer = WordNetLemmatizer()
 
 nlp = sp.load('en_core_web_md')
 matcher = Matcher(nlp.vocab)
@@ -102,10 +96,10 @@ def sorry():
 def faculty(words, text, userResponse):
     facList = []
     if re.search("Mr\.|Ms\.|Ar\.|Prof\.|Dr\.|Mrs\.", text):
-        text = re.sub("Mr\.|Ms\.|Ar\.|Prof\.|Dr\.|Mrs\.", "Dr. ", text)
-    
-    text=re.sub("^[a-z]",text[0].upper(),text)
-    text=re.sub("^can|^Can","What ",text)
+        text = re.sub("Mr\.|Ms\.|Ar\.|Prof\.|Dr\.|Mrs\.", "", text)
+
+    text = re.sub("^[a-z]", text[0].upper(), text)
+    text = re.sub("^can|^Can", "What ", text)
 
     facList = extract_names(text)
 
@@ -121,10 +115,10 @@ def faculty(words, text, userResponse):
         l.append(process.extractOne(x, shNames)[1])
         maxi = max(l)
         maxIdx = l.index(maxi)
-        
+
         if maxi < 70:
             output = " does not seem to be a part of any department."
-            return render_template('facultyError.html', x=x, output=output, userResponse=userResponse)
+            return jsonify({ 'name':x, 'output':output, 'userResponse':userResponse,'type':'facError'})
 
         if maxIdx == 0:
             name = process.extractOne(x, archNames)[0]
@@ -168,11 +162,11 @@ def faculty(words, text, userResponse):
             desg = shDesg[emIdx]
 
         if ('mail' in words or 'e-mail' in words or 'email' in words) and ('designation'in words or 'job' in words or 'do' in words):
-            return render_template('facDesg.html', x=name, email=email, desg=desg, userResponse=userResponse)
+            return jsonify({ 'name':name, 'email':email, 'desg':desg, 'userResponse':userResponse,'type':'dmail'})
         if 'mail' in words or 'e-mail' in words or 'email' in words:
-            return render_template('facultyEmail.html', x=name, email=email, userResponse=userResponse)
+            return jsonify({'name':name, 'email':email, 'userResponse':userResponse,'type':'email'})
         if 'designation'in words or 'job' in words or 'do' in words:
-            return render_template('facultyDesg.html', x=name, desg=desg, userResponse=userResponse)
+            return jsonify({'name':name, 'desg':desg, 'userResponse':userResponse,'type':'desg'})
 
 
 userResponse = ''
@@ -183,10 +177,11 @@ words = ''
 
 
 def start():
-    return render_template('index.html', userResponse=userResponse, output=output)
+    return render_template('index.html', output=hello())
 
 
 hiComp = [nlp('hi'), nlp('sup')]
+byeComp = [nlp('see you later'), nlp('bye')]
 eventComp = [nlp("what events are occuring in college?"),
              nlp("let me know what events are going on in college")]
 holidayComp = [nlp("what days are holidays?"), nlp("is tomorrow a holiday?")]
@@ -203,20 +198,20 @@ def main1():
 
     if user.similarity(hiComp[0]) > 0.7 or user.similarity(hiComp[1]) > 0.7:
         output = hello()
-        return render_template('index.html', output=output, userResponse=userResponse)
+        return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
 
-    elif 'bye' in words:
+    elif user.similarity(byeComp[0]) > 0.9 or user.similarity(byeComp[1]) > 0.9:
         output = bye()
-        return render_template('index.html', output=output, userResponse=userResponse)
+        return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
 
     # questions related to events occuring in college
     elif (user.similarity(eventComp[0]) > 0.85 or user.similarity(eventComp[1]) > 0.85) and 'event' in words:
         if eNames:
             output = "The following events are occuring: "
-            return render_template('events.html', output=output, eNames=eNames, eTimes=eTimes, userResponse=userResponse)
+            return jsonify({'output': output, 'eNames': eNames, 'eTimes': eTimes, 'userResponse': userResponse, 'type': 'event'})
         else:
             output = 'No events are going on currently.'
-            return render_template('index.html', userResponse=userResponse, output=output)
+            return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
 
     # questions related to holidays
     elif user.similarity(holidayComp[1]) > 0.85 and 'tomorrow' in words and 'holiday' in words:
@@ -224,14 +219,14 @@ def main1():
             str(datetime.date.today()+datetime.timedelta(days=1)))
         if hol[tomDateIndex] == 'Yes' or (datetime.date.today()+datetime.timedelta(days=1)).strftime("%A") == 'Sunday':
             output = 'Yes, tomorrow is a holiday!'
-            return render_template('index.html', userResponse=userResponse, output=output)
+            return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
         else:
             output = 'Sorry, tomorrow is not a holiday'
-            return render_template('index.html', userResponse=userResponse, output=output)
+            return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
 
     elif user.similarity(holidayComp[0]) > 0.85 and 'holiday' in words:
         output = 'The following dates are upcoming holidays:'
-        return render_template('holiday.html', calDate=calDate, holIdx=holIdx, output=output, userResponse=userResponse)
+        return jsonify({'calDate': calDate, 'holIdx': holIdx, 'output': output, 'userResponse': userResponse, 'type': 'holiday'})
 
     # questions related to results release
     elif user.similarity(resultComp[1]) > 0.85 and 'tomorrow' in words and 'result' in words:
@@ -239,26 +234,26 @@ def main1():
             str(datetime.date.today()+datetime.timedelta(days=1)))
         if res[tomDateIndex] == 'Yes':
             output = 'Yes, tomorrow the results will be released!'
-            return render_template('index.html', userResponse=userResponse, output=output)
+            return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
         else:
             output = 'The results will not be released tomorrow. They will be released on '
-            return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
+            return jsonify({'userResponse': userResponse, 'output': output, 'calDate': calDate, 'resIdx': resIdx, 'type': 'result'})
 
     elif user.similarity(resultComp[0]) > 0.85 and 'result' in words:
         output = 'The results will be released on '
-        return render_template('results.html', userResponse=userResponse, output=output, calDate=calDate, resIdx=resIdx)
-    
+        return jsonify({'userResponse': userResponse, 'output': output, 'calDate': calDate, 'resIdx': resIdx, 'type': 'result'})
+
     # questions related to faculty
     elif re.search("Ar\.\s[a-zA-Z]+|Ar\.[a-zA-Z]+|Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", text) or nlp(text).similarity(profComp[0]) > 0.7 or nlp(text).similarity(profComp[1]) > 0.7:
         temp = re.sub(
             "Ar\.\s[a-zA-Z]+|Ar\.[a-zA-Z]+|Prof\.\s[a-zA-Z]+|Mr\.\s[a-zA-Z]+|Dr\.\s[a-zA-Z]+|Ms\.\s[a-zA-Z]+|Mrs\.\s[a-zA-Z]+|Prof\.[a-zA-Z]+|Mr\.[a-zA-Z]+|Dr\.[a-zA-Z]+|Ms\.[a-zA-Z]+|Mrs\.[a-zA-Z]+", " ", text)
-        
+
         if(nlp(temp).similarity(profComp[0]) > 0.7 or nlp(temp).similarity(profComp[1]) > 0.7 or nlp(text).similarity(profComp[0]) > 0.7 or nlp(text).similarity(profComp[1]) > 0.7):
             return faculty(words, text, userResponse)
         else:
             output = "I'm sorry, I didn't understand that."
-            return render_template('index.html', userResponse=userResponse, output=output)
-    
+            return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})
+
     else:
-        output = "I'm sorry, I didn't understand that."
-        return render_template('index.html', userResponse=userResponse, output=output)
+        output = sorry()
+        return jsonify({'userResponse': userResponse, 'output': output, 'type': 'default'})

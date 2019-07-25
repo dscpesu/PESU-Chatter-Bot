@@ -8,7 +8,7 @@ app.debug = True
 def hi():
     return start()
 
-@app.route('/chat',methods=['GET','POST'])
+@app.route('/chat',methods=['POST'])
 def chat():
     return main1()
 
