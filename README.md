@@ -7,5 +7,5 @@ To test this, ensure you have the following Python packages installed:
   FuzzyWuzzy
 
 In order to run the bot:
-run 'python web.py'
-then open the following link 'http://localhost:5000/'
+run `python web.py`
+then open the following link `http://localhost:5000/`
