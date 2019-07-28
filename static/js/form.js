@@ -12,7 +12,9 @@ $(function() {
             url: '/chat',
             success: function(data) {
 
-                u = " <br><br><br><div class='alert alert-primary right w40r'>";
+                // $("#temp").append("<br><br><br>hi")
+
+                u = "<div class='alert alert-primary right w40r'>";
                 $("#temp").append(u + data.userResponse + "</div>");
                 o = "<br><br><br> <div class='alert alert-secondary left w40l'>";
 
@@ -20,7 +22,7 @@ $(function() {
                 if (data.type == 'default') {
 
                     setTimeout(function() {
-                        $("#temp").append(o + data.output + "</div>")
+                        $("#temp").append(o + data.output + "</div><br><br><br>")
                     }, 150);
 
                 } else if (data.type == 'event') {
@@ -32,7 +34,7 @@ $(function() {
                         br = br + '<br>'
                     }
                     setTimeout(function() {
-                        $("#temp").append(o + data.output + '<br>' + ev + "</div>" + br)
+                        $("#temp").append(o + data.output + '<br>' + ev + "</div><br><br><br>" + br)
                     }, 150);
 
                 } else if (data.type == 'holiday') {
@@ -44,7 +46,7 @@ $(function() {
                         br = br + '<br>';
                     }
                     setTimeout(function() {
-                        $("#temp").append(o + data.output + '<br>' + hol + "</div>" + br)
+                        $("#temp").append(o + data.output + '<br>' + hol + "</div><br><br><br>" + br)
                     }, 150);
 
                 } else if (data.type == 'result') {
@@ -57,28 +59,28 @@ $(function() {
                 } else if (data.type == 'facError') {
 
                     setTimeout(function() {
-                        $("#temp").append(o + ' ' + data.name + data.output + "</div>")
+                        $("#temp").append(o + ' ' + data.name + data.output + "</div><br><br><br>")
                     }, 150);
 
                 } else if (data.type == 'dmail') {
 
                     var de = 'Email- ' + data.email + '<br>' + data.name + ': ' + data.desg;
                     setTimeout(function() {
-                        $("#temp").append(o + de + "</div><br>")
+                        $("#temp").append(o + de + "</div><br><br><br><br>")
                     }, 150);
 
                 } else if (data.type == 'email') {
 
                     var e = data.name + ': ' + 'Email- ' + data.email;
                     setTimeout(function() {
-                        $("#temp").append(o + e + "</div>")
+                        $("#temp").append(o + e + "</div><br><br><br>")
                     }, 150);
 
                 } else if (data.type == 'desg') {
 
                     var d = data.name + ': ' + data.desg;
                     setTimeout(function() {
-                        $("#temp").append(o + d + "</div>")
+                        $("#temp").append(o + d + "</div><br><br><br>")
                     }, 150);
 
                 }

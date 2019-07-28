@@ -34,7 +34,7 @@
 }
 
 .block {
-    background-color: rgba(24, 24, 26, 0.95);
+    background-color: rgb(24, 24, 26);
     position: fixed;
     bottom: 0%;
     height: 12%;
@@ -49,6 +49,6 @@
 
 .plane {
     font-size: 30px;
-    color: papayawhip;
+    color: rgb(235, 235, 235);
     cursor: pointer;
 }

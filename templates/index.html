@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Bot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" /> -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
@@ -19,14 +18,14 @@
 
 <body class="bgcolors">
 
-    <a href="/"><button type="button" class="btn btn-primary" style="position: fixed; top:3%;right:5%">Reset</button></a>
-    <br><br><br>
-
+    <br><br>
     <div class="container p-3" id="temp">
         <div class="alert alert-secondary text-left w40" role="alert" style="position: absolute;left:5%">
-            <div class="left">{{output}}</div>
+            <div class="left">{{output}} </div>
         </div>
+        <br><br><br>
     </div>
+
     <div class="block">
         <div class="container p-3 querybar">
             <form class="form-row">
@@ -36,9 +35,13 @@
                 <i class="fas fa-paper-plane plane" id="submit">
                     <input type="submit" class="btn btn-primary" id="submit" style="display: none">
                 </i>
+                <a href="/"><button type="button" class="btn btn-primary" style="position: fixed; top:3%;right:5%">Reset</button></a>
+
             </form>
         </div>
     </div>
+
+    <br><br><br><br>
 
 </body>
 
